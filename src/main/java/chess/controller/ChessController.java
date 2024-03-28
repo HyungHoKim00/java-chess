@@ -4,6 +4,7 @@ import chess.dao.ChessDaoManager;
 import chess.domain.Board;
 import chess.domain.BoardFactory;
 import chess.domain.ChessGame;
+import chess.domain.GameResult;
 import chess.domain.Movement;
 import chess.domain.State;
 import chess.domain.piece.abstractPiece.Piece;
@@ -78,7 +79,7 @@ public class ChessController {
             state = chessGame.checkState();
         }
         printWinnerByStatus(board, commandDto.gameCommand());
-        printWinnerByCheckmate(chessGame, state);
+        printWinnerByMate(chessGame, state);
         chessDaoManager.deleteChessGame(roomName);
     }
 
@@ -97,9 +98,12 @@ public class ChessController {
         }
     }
 
-    private void printWinnerByCheckmate(ChessGame chessGame, State state) {
+    private void printWinnerByMate(ChessGame chessGame, State state) {
         if (state == State.CHECKMATE) {
             OutputView.printWinner(chessGame.getCurrentTeam().opponent());
+        }
+        if (state == State.STALEMATE) {
+            OutputView.printWinner(GameResult.DRAW);
         }
     }
 }
