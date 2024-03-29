@@ -17,9 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class BoardDaoTest {
+class PiecesDaoTest {
     private static final String ROOM_NAME = "roomName";
-    private BoardDao boardDao;
+    private PiecesDao piecesDao;
     private static Connection connection;
 
     @BeforeAll
@@ -42,7 +42,7 @@ class BoardDaoTest {
 
     @BeforeEach
     void setUp() {
-        boardDao = new BoardDao();
+        piecesDao = new PiecesDao();
     }
 
     @AfterEach
@@ -59,8 +59,8 @@ class BoardDaoTest {
     void addAll() {
         Board board = new Board(Map.of(Position.of(1, 1), new WhitePawn()));
 
-        boardDao.addAll(board, ROOM_NAME, connection);
-        Board dbBoard = boardDao.loadAll(ROOM_NAME, connection);
+        piecesDao.addAll(board, ROOM_NAME, connection);
+        Board dbBoard = piecesDao.loadAll(ROOM_NAME, connection);
 
         assertThat(dbBoard.getPieces()).isEqualTo(board.getPieces());
     }
@@ -68,7 +68,7 @@ class BoardDaoTest {
     @DisplayName("존재하는 게임의 기물들을 반환한다.")
     @Test
     void loadAll() {
-        Board dbBoard = boardDao.loadAll(ROOM_NAME, connection);
+        Board dbBoard = piecesDao.loadAll(ROOM_NAME, connection);
 
         assertThat(dbBoard.getPieces()).isEmpty();
     }
@@ -79,10 +79,10 @@ class BoardDaoTest {
         Piece piece = new WhitePawn();
         Board board = new Board(Map.of(Position.of(1, 1), piece));
 
-        boardDao.addAll(board, ROOM_NAME, connection);
-        boardDao.update(new Movement(Position.of(1, 1), Position.of(3, 1)),
+        piecesDao.addAll(board, ROOM_NAME, connection);
+        piecesDao.update(new Movement(Position.of(1, 1), Position.of(3, 1)),
                 piece, ROOM_NAME, connection);
-        Board dbBoard = boardDao.loadAll(ROOM_NAME, connection);
+        Board dbBoard = piecesDao.loadAll(ROOM_NAME, connection);
 
         assertThat(dbBoard.getPieces())
                 .containsExactly(Map.entry(Position.of(3, 1), piece));
@@ -93,9 +93,9 @@ class BoardDaoTest {
     void delete() {
         Board board = new Board(Map.of(Position.of(1, 1), new WhitePawn()));
 
-        boardDao.addAll(board, ROOM_NAME, connection);
-        boardDao.delete(ROOM_NAME, connection);
-        Board dbBoard = boardDao.loadAll(ROOM_NAME, connection);
+        piecesDao.addAll(board, ROOM_NAME, connection);
+        piecesDao.delete(ROOM_NAME, connection);
+        Board dbBoard = piecesDao.loadAll(ROOM_NAME, connection);
 
         assertThat(dbBoard.getPieces()).isEmpty();
     }

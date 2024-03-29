@@ -9,18 +9,18 @@ import chess.exception.DbException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ChessDaoManager {
+public class ChessService {
     private final ConnectionGenerator connectionGenerator;
-    private final BoardDao boardDao;
+    private final PiecesDao piecesDao;
     private final ChessGameDao chessGameDao;
 
-    public ChessDaoManager() {
-        this(new ProductionConnectionGenerator(), new BoardDao(), new ChessGameDao());
+    public ChessService() {
+        this(new ProductionConnectionGenerator(), new PiecesDao(), new ChessGameDao());
     }
 
-    private ChessDaoManager(ConnectionGenerator connectionGenerator, BoardDao boardDao, ChessGameDao chessGameDao) {
+    private ChessService(ConnectionGenerator connectionGenerator, PiecesDao piecesDao, ChessGameDao chessGameDao) {
         this.connectionGenerator = connectionGenerator;
-        this.boardDao = boardDao;
+        this.piecesDao = piecesDao;
         this.chessGameDao = chessGameDao;
     }
 
@@ -30,7 +30,7 @@ public class ChessDaoManager {
             connection = connectionGenerator.getConnection();
             connection.setAutoCommit(false);
             chessGameDao.add(team, roomName, connection);
-            boardDao.addAll(board, roomName, connection);
+            piecesDao.addAll(board, roomName, connection);
             connection.commit();
         } catch (SQLException e) {
             rollback(connection);
@@ -45,7 +45,7 @@ public class ChessDaoManager {
             connection = connectionGenerator.getConnection();
             connection.setAutoCommit(false);
             Team currentTeam = chessGameDao.findCurrentTeamByRoomName(roomName, connection);
-            Board board = boardDao.loadAll(roomName, connection);
+            Board board = piecesDao.loadAll(roomName, connection);
             connection.commit();
             return new ChessGame(board, currentTeam);
         } catch (SQLException e) {
@@ -62,7 +62,7 @@ public class ChessDaoManager {
             connection = connectionGenerator.getConnection();
             connection.setAutoCommit(false);
             chessGameDao.update(currentTeam, roomName, connection);
-            boardDao.update(movement, piece, roomName, connection);
+            piecesDao.update(movement, piece, roomName, connection);
             connection.commit();
         } catch (SQLException e) {
             rollback(connection);
@@ -77,7 +77,7 @@ public class ChessDaoManager {
             connection = connectionGenerator.getConnection();
             connection.setAutoCommit(false);
             chessGameDao.delete(roomName, connection);
-            boardDao.delete(roomName, connection);
+            piecesDao.delete(roomName, connection);
             connection.commit();
         } catch (SQLException e) {
             rollback(connection);

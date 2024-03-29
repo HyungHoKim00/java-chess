@@ -9,10 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ChessGameDao {
+    private static final String TABLE_NAME = "chess_game";
+
     public void add(Team currentTeam, String roomName, Connection connection) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO chess_game(room_name, current_team) VALUES (?, ?)");
+                    "INSERT INTO " + TABLE_NAME + "(room_name, current_team) VALUES (?, ?)");
 
             statement.setString(1, roomName);
             statement.setString(2, currentTeam.name());
@@ -25,7 +27,7 @@ public class ChessGameDao {
     public Team findCurrentTeamByRoomName(String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT current_team FROM chess_game WHERE room_name = ?");
+                    "SELECT current_team FROM " + TABLE_NAME + " WHERE room_name = ?");
 
             statement.setString(1, roomName);
             final ResultSet resultSet = statement.executeQuery();
@@ -40,7 +42,7 @@ public class ChessGameDao {
     public void update(Team currentTeam, String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE chess_game SET current_team = ? WHERE room_name = ?");
+                    "UPDATE " + TABLE_NAME + " SET current_team = ? WHERE room_name = ?");
 
             statement.setString(1, currentTeam.name());
             statement.setString(2, roomName);
@@ -54,7 +56,7 @@ public class ChessGameDao {
     public void delete(String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM chess_game WHERE room_name = ?");
+                    "DELETE FROM " + TABLE_NAME + " WHERE room_name = ?");
             statement.setString(1, roomName);
 
             statement.execute();

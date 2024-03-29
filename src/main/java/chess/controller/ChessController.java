@@ -1,6 +1,6 @@
 package chess.controller;
 
-import chess.dao.ChessDaoManager;
+import chess.dao.ChessService;
 import chess.domain.Board;
 import chess.domain.BoardFactory;
 import chess.domain.ChessGame;
@@ -33,23 +33,23 @@ public class ChessController {
 
     private void loadGame() {
         final String roomName = InputView.inputLoadRoomName();
-        ChessDaoManager chessDaoManager = new ChessDaoManager();
-        ChessGame chessGame = chessDaoManager.loadChessGame(roomName);
+        ChessService chessService = new ChessService();
+        ChessGame chessGame = chessService.loadChessGame(roomName);
         Board board = chessGame.getBoard();
         OutputView.printGameState(new BoardStatusDto(board.getPieces(), chessGame.checkState()));
 
-        play(chessGame, chessDaoManager, roomName);
+        play(chessGame, chessService, roomName);
     }
 
     private void startNewGame() {
         final String roomName = InputView.inputNewRoomName();
-        ChessDaoManager chessDaoManager = new ChessDaoManager();
+        ChessService chessService = new ChessService();
         Board board = new Board(BoardFactory.generateStartBoard());
         ChessGame chessGame = new ChessGame(board);
-        chessDaoManager.initialize(board, chessGame.getCurrentTeam(), roomName);
+        chessService.initialize(board, chessGame.getCurrentTeam(), roomName);
         OutputView.printGameState(new BoardStatusDto(board.getPieces(), State.NORMAL));
 
-        play(chessGame, chessDaoManager, roomName);
+        play(chessGame, chessService, roomName);
     }
 
     private GameCommand validateStartCommand() {
@@ -61,32 +61,32 @@ public class ChessController {
         }
     }
 
-    private void play(ChessGame chessGame, ChessDaoManager chessDaoManager, String roomName) {
+    private void play(ChessGame chessGame, ChessService chessService, String roomName) {
         try {
-            playTurns(chessGame, chessDaoManager, roomName);
+            playTurns(chessGame, chessService, roomName);
         } catch (InvalidCommandException | ImpossibleMoveException e) {
             OutputView.printErrorMessage(e.getMessage());
-            play(chessGame, chessDaoManager, roomName);
+            play(chessGame, chessService, roomName);
         }
     }
 
-    private void playTurns(ChessGame chessGame, ChessDaoManager chessDaoManager, String roomName) {
+    private void playTurns(ChessGame chessGame, ChessService chessService, String roomName) {
         CommandDto commandDto = new CommandDto();
         State state = chessGame.checkState();
         Board board = chessGame.getBoard();
         while (state != State.CHECKMATE && (commandDto = InputView.inputCommand()).gameCommand() == GameCommand.MOVE) {
-            playTurn(chessGame, chessDaoManager, commandDto.toMovementDomain(), roomName);
+            playTurn(chessGame, chessService, commandDto.toMovementDomain(), roomName);
             state = chessGame.checkState();
         }
         printWinnerByStatus(board, commandDto.gameCommand());
         printWinnerByMate(chessGame, state);
-        chessDaoManager.deleteChessGame(roomName);
+        chessService.deleteChessGame(roomName);
     }
 
-    private void playTurn(ChessGame chessGame, ChessDaoManager chessDaoManager, Movement movement, String roomName) {
+    private void playTurn(ChessGame chessGame, ChessService chessService, Movement movement, String roomName) {
         Board board = chessGame.getBoard();
         Piece piece = chessGame.movePiece(movement);
-        chessDaoManager.update(movement, piece, chessGame.getCurrentTeam(), roomName);
+        chessService.update(movement, piece, chessGame.getCurrentTeam(), roomName);
         OutputView.printGameState(new BoardStatusDto(board.getPieces(), chessGame.checkState()));
     }
 

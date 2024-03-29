@@ -17,12 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public final class BoardDao {
+public final class PiecesDao {
+    private static final String TABLE_NAME = "pieces";
+
     public void addAll(Board board, String roomName, Connection connection) {
         try {
             for (Entry<Position, Piece> piece : board.getPieces().entrySet()) {
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO board(room_name, position, team, kind, is_moved)"
+                        "INSERT INTO " + TABLE_NAME + "(room_name, position, team, kind, is_moved)"
                                 + " VALUES (?, ?, ?, ?, ?)");
 
                 statement.setString(1, roomName);
@@ -41,7 +43,7 @@ public final class BoardDao {
     public Board loadAll(String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM board WHERE room_name = ?");
+                    "SELECT * FROM " + TABLE_NAME + " WHERE room_name = ?");
 
             statement.setString(1, roomName);
             final ResultSet resultSet = statement.executeQuery();
@@ -79,7 +81,7 @@ public final class BoardDao {
     private void deleteAttackedPiece(Movement movement, String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM board WHERE position = ? AND room_name = ?");
+                    "DELETE FROM " + TABLE_NAME + " WHERE position = ? AND room_name = ?");
             statement.setString(1, PositionConverter.toNotation(movement.target()));
             statement.setString(2, roomName);
 
@@ -92,7 +94,8 @@ public final class BoardDao {
     private void movePiece(Movement movement, Piece piece, String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE board SET position = ?, is_moved = ? WHERE position = ? AND room_name = ?");
+                    "UPDATE " + TABLE_NAME
+                            + " SET position = ?, is_moved = ? WHERE position = ? AND room_name = ?");
 
             statement.setString(1, PositionConverter.toNotation(movement.target()));
             statement.setBoolean(2, piece.isMoved());
@@ -108,7 +111,7 @@ public final class BoardDao {
     public void delete(String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM board WHERE room_name = ?");
+                    "DELETE FROM " + TABLE_NAME + " WHERE room_name = ?");
             statement.setString(1, roomName);
 
             statement.execute();
