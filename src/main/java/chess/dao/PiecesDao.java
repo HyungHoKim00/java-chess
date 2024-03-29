@@ -99,8 +99,7 @@ public final class PiecesDao {
     private void movePiece(Movement movement, Piece piece, String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE " + TABLE_NAME
-                            + " SET position = ?, is_moved = ?"
+                    "UPDATE " + TABLE_NAME + " SET position = ?, is_moved = ?"
                             + " WHERE position = ? AND room_name = ?");
 
             statement.setString(1, PositionConverter.toNotation(movement.target()));
