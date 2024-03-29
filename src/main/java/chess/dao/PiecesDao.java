@@ -6,7 +6,7 @@ import chess.domain.Position;
 import chess.domain.piece.abstractPiece.Piece;
 import chess.domain.piece.character.Kind;
 import chess.domain.piece.character.Team;
-import chess.exception.DbException;
+import chess.exception.DataAccessException;
 import chess.exception.InvalidGameRoomException;
 import chess.util.PositionConverter;
 import java.sql.Connection;
@@ -24,7 +24,8 @@ public final class PiecesDao {
         try {
             for (Entry<Position, Piece> piece : board.getPieces().entrySet()) {
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO " + TABLE_NAME + "(room_name, position, team, kind, is_moved)"
+                        "INSERT INTO " + TABLE_NAME
+                                + "(room_name, position, team, kind, is_moved)"
                                 + " VALUES (?, ?, ?, ?, ?)");
 
                 statement.setString(1, roomName);
@@ -36,7 +37,7 @@ public final class PiecesDao {
                 statement.execute();
             }
         } catch (SQLException e) {
-            throw new DbException();
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -49,19 +50,23 @@ public final class PiecesDao {
             final ResultSet resultSet = statement.executeQuery();
 
             final Map<Position, Piece> loadedBoard = new HashMap<>();
-            while (resultSet.next()) {
-                getPiece(resultSet, loadedBoard);
+            try {
+                while (resultSet.next()) {
+                    getPiece(resultSet, loadedBoard);
+                }
+            } catch (SQLException e) {
+                throw new InvalidGameRoomException("존재하지 않는 방 이름입니다.");
             }
-
             return new Board(loadedBoard);
         } catch (SQLException e) {
-            throw new InvalidGameRoomException("존재하지 않는 방 이름입니다.");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
     private void getPiece(ResultSet resultSet, Map<Position, Piece> loadedBoard) {
         try {
-            Position position = PositionConverter.toPosition(resultSet.getString("position"));
+            Position position
+                    = PositionConverter.toPosition(resultSet.getString("position"));
             Team team = Team.valueOf(resultSet.getString("team"));
             Kind kind = Kind.valueOf(resultSet.getString("kind"));
             boolean isMoved = resultSet.getBoolean("is_moved");
@@ -69,7 +74,7 @@ public final class PiecesDao {
 
             loadedBoard.put(position, piece);
         } catch (SQLException e) {
-            throw new DbException("속성명이 일치하지 않습니다.");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -87,7 +92,7 @@ public final class PiecesDao {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new DbException();
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -95,7 +100,8 @@ public final class PiecesDao {
         try {
             final PreparedStatement statement = connection.prepareStatement(
                     "UPDATE " + TABLE_NAME
-                            + " SET position = ?, is_moved = ? WHERE position = ? AND room_name = ?");
+                            + " SET position = ?, is_moved = ?"
+                            + " WHERE position = ? AND room_name = ?");
 
             statement.setString(1, PositionConverter.toNotation(movement.target()));
             statement.setBoolean(2, piece.isMoved());
@@ -104,7 +110,7 @@ public final class PiecesDao {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new DbException();
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -116,7 +122,7 @@ public final class PiecesDao {
 
             statement.execute();
         } catch (SQLException e) {
-            throw new DbException();
+            throw new DataAccessException(e.getMessage());
         }
     }
 }

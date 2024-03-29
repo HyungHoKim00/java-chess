@@ -65,7 +65,7 @@ class ChessGameDaoTest {
 
         assertThatThrownBy(() -> chessGameDao.add(Team.WHITE, name, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
-                .hasMessage("중복된 방 이름이 존재하거나, 방이름이 17자 이상입니다.");
+                .hasMessage("방 이름은 16자 이하로 입력해 주세요.");
     }
 
     @DisplayName("입력된 방 이름이 중복되면 예외가 발생한다.")
@@ -75,7 +75,7 @@ class ChessGameDaoTest {
 
         assertThatThrownBy(() -> chessGameDao.add(Team.WHITE, ROOM_NAME, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
-                .hasMessage("중복된 방 이름이 존재하거나, 방이름이 17자 이상입니다.");
+                .hasMessage("중복된 이름이 존재합니다.");
     }
 
     @DisplayName("방 이름으로 현재 팀을 찾는다.")

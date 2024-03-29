@@ -1,5 +1,6 @@
 package chess.dao;
 
+import chess.exception.ConnectionException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,8 +13,8 @@ public class ProductionConnectionGenerator implements ConnectionGenerator {
     public Connection getConnection() {
         try {
             FileInputStream fis = new FileInputStream(
-                    "C:\\Program Files\\intellijWorkspace\\intellijWorkspace\\java-chess\\src"
-                            + "\\main\\resources\\connection-context.properties");
+                    "C:\\Program Files\\intellijWorkspace\\intellijWorkspace\\java-chess"
+                            + "\\src\\main\\resources\\connection-context.properties");
             Properties properties = new Properties();
             properties.load(fis);
             return DriverManager.getConnection(
@@ -22,7 +23,7 @@ public class ProductionConnectionGenerator implements ConnectionGenerator {
                     properties.get("USERNAME") + "",
                     properties.get("PASSWORD") + ""
             );
-        } catch (final SQLException e) {
+        } catch (SQLException e) {
             System.err.println("DB 연결 오류:" + e.getMessage());
             e.printStackTrace();
         } catch (FileNotFoundException e) {
@@ -32,6 +33,6 @@ public class ProductionConnectionGenerator implements ConnectionGenerator {
             System.err.println("입출력 오류:" + e.getMessage());
             e.printStackTrace();
         }
-        return null;
+        throw new ConnectionException();
     }
 }
