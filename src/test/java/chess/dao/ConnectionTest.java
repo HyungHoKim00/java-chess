@@ -11,15 +11,15 @@ public class ConnectionTest {
     @DisplayName("테스트 연결 테스트")
     @Test
     void testConnection() {
-        connectionGenerator = new TestConnectionGenerator();
+        connectionGenerator = new ConnectionGenerator();
 
-        assertThat(connectionGenerator.getConnection()).isNotNull();
+        assertThat(connectionGenerator.getConnection("test")).isNotNull();
     }
 
     @DisplayName("프로덕션 연결 테스트")
     @Test
     void productionConnection() {
-        connectionGenerator = new ProductionConnectionGenerator();
+        connectionGenerator = new ConnectionGenerator();
 
         assertThat(connectionGenerator.getConnection()).isNotNull();
     }

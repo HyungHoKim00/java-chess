@@ -1,0 +1,5 @@
+server: localhost:13306
+database: chess
+option: ?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+username: root
+password: root

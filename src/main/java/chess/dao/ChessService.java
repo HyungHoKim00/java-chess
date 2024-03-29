@@ -17,7 +17,7 @@ public class ChessService {
     private final ChessGameDao chessGameDao;
 
     public ChessService() {
-        this(new ProductionConnectionGenerator(), new PiecesDao(), new ChessGameDao());
+        this(new ConnectionGenerator(), new PiecesDao(), new ChessGameDao());
     }
 
     private ChessService(

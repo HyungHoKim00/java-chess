@@ -25,8 +25,8 @@ class PiecesDaoTest {
     @BeforeAll
     static void openConnection() {
         try {
-            ConnectionGenerator connectionGenerator = new TestConnectionGenerator();
-            connection = connectionGenerator.getConnection();
+            ConnectionGenerator connectionGenerator = new ConnectionGenerator();
+            connection = connectionGenerator.getConnection("test");
             connection.setAutoCommit(false);
         } catch (SQLException ignored) {
         }
