@@ -42,7 +42,7 @@ public class ChessController {
         Board board = new Board(BoardFactory.generateStartBoard());
         ChessGame chessGame = new ChessGame(board);
         chessService.initialize(board, chessGame.getCurrentTeam(), roomName);
-        OutputView.printGameState(new BoardStatusDto(board.getPieces(), State.NORMAL));
+        OutputView.printGameState(new BoardStatusDto(board.getSquares(), State.NORMAL));
 
         play(chessGame, roomName);
     }
@@ -51,7 +51,7 @@ public class ChessController {
         String roomName = InputView.inputLoadRoomName();
         ChessGame chessGame = chessService.loadChessGame(roomName);
         Board board = chessGame.getBoard();
-        OutputView.printGameState(new BoardStatusDto(board.getPieces(), chessGame.checkState()));
+        OutputView.printGameState(new BoardStatusDto(board.getSquares(), chessGame.checkState()));
 
         play(chessGame, roomName);
     }
@@ -97,7 +97,7 @@ public class ChessController {
         Board board = chessGame.getBoard();
         Piece piece = chessGame.movePiece(movement);
         chessService.update(movement, piece, chessGame.getCurrentTeam(), roomName);
-        OutputView.printGameState(new BoardStatusDto(board.getPieces(), chessGame.checkState()));
+        OutputView.printGameState(new BoardStatusDto(board.getSquares(), chessGame.checkState()));
     }
 
     private void printWinnerByStatus(Board board, GameCommand gameCommand) {

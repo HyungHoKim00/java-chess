@@ -10,7 +10,6 @@ import java.util.Set;
 
 public abstract class Piece {
     protected static final int MIN_MOVEMENT = 1;
-
     protected final Character character;
     protected final boolean isMoved;
 
@@ -68,11 +67,11 @@ public abstract class Piece {
             return false;
         }
         Piece piece = (Piece) o;
-        return Objects.equals(character, piece.character);
+        return isMoved == piece.isMoved && Objects.equals(character, piece.character);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(character);
+        return Objects.hash(character, isMoved);
     }
 }

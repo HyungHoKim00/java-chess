@@ -13,29 +13,29 @@ import java.sql.SQLException;
 
 public class ChessService {
     private final ConnectionGenerator connectionGenerator;
-    private final PiecesDao piecesDao;
-    private final ChessGameDao chessGameDao;
+    private final BoardsDao boardsDao;
+    private final GamesDao gamesDao;
 
     public ChessService() {
-        this(new ConnectionGenerator(), new PiecesDao(), new ChessGameDao());
+        this(new ConnectionGenerator(), new BoardsDao(), new GamesDao());
     }
 
     private ChessService(
             ConnectionGenerator connectionGenerator,
-            PiecesDao piecesDao,
-            ChessGameDao chessGameDao
+            BoardsDao boardsDao,
+            GamesDao gamesDao
     ) {
         this.connectionGenerator = connectionGenerator;
-        this.piecesDao = piecesDao;
-        this.chessGameDao = chessGameDao;
+        this.boardsDao = boardsDao;
+        this.gamesDao = gamesDao;
     }
 
     public void initialize(Board board, Team team, String roomName) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                chessGameDao.add(team, roomName, connection);
-                piecesDao.addAll(board, roomName, connection);
+                gamesDao.add(team, roomName, connection);
+                boardsDao.addAll(board, roomName, connection);
             } catch (InvalidGameRoomException | DataAccessException e) {
                 connection.rollback();
                 throw e;
@@ -52,8 +52,8 @@ public class ChessService {
             Team currentTeam;
             Board board;
             try {
-                currentTeam = chessGameDao.findCurrentTeamByRoomName(roomName, connection);
-                board = piecesDao.loadAll(roomName, connection);
+                currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
+                board = boardsDao.loadAll(roomName, connection);
             } catch (InvalidGameRoomException | DataAccessException e) {
                 connection.rollback();
                 throw e;
@@ -69,8 +69,8 @@ public class ChessService {
         try (final Connection connection = connectionGenerator.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                chessGameDao.update(currentTeam, roomName, connection);
-                piecesDao.update(movement, piece, roomName, connection);
+                gamesDao.update(currentTeam, roomName, connection);
+                boardsDao.update(movement, piece, roomName, connection);
             } catch (DataAccessException e) {
                 connection.rollback();
                 throw e;
@@ -85,8 +85,8 @@ public class ChessService {
         try (final Connection connection = connectionGenerator.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                chessGameDao.delete(roomName, connection);
-                piecesDao.delete(roomName, connection);
+                gamesDao.delete(roomName, connection);
+                boardsDao.delete(roomName, connection);
             } catch (DataAccessException e) {
                 connection.rollback();
                 throw e;

@@ -27,7 +27,8 @@ class ChessGameTest {
         Team actualCurrentTeam = chessGame.getCurrentTeam();
 
         assertAll(
-                () -> assertThat(board.getPieces()).containsEntry(Position.of(4, 2), new WhitePawn()),
+                () -> assertThat(board.getSquares()).containsEntry(Position.of(4, 2),
+                        new WhitePawn(true)),
                 () -> assertThat(actualCurrentTeam).isEqualTo(Team.BLACK)
         );
     }

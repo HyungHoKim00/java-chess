@@ -15,9 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class ChessGameDaoTest {
+class GamesDaoTest {
     private static final String ROOM_NAME = "roomName";
-    private ChessGameDao chessGameDao;
+    private GamesDao gamesDao;
     private static Connection connection;
 
     @BeforeAll
@@ -40,7 +40,7 @@ class ChessGameDaoTest {
 
     @BeforeEach
     void setUp() {
-        chessGameDao = new ChessGameDao();
+        gamesDao = new GamesDao();
     }
 
     @AfterEach
@@ -54,7 +54,7 @@ class ChessGameDaoTest {
     @DisplayName("필드 추가")
     @Test
     void add() {
-        assertThatCode(() -> chessGameDao.add(Team.WHITE, ROOM_NAME, connection))
+        assertThatCode(() -> gamesDao.add(Team.WHITE, ROOM_NAME, connection))
                 .doesNotThrowAnyException();
     }
 
@@ -63,7 +63,7 @@ class ChessGameDaoTest {
     void invalidAddIfNameOver16() {
         String name = "soLongRoomNameInput";
 
-        assertThatThrownBy(() -> chessGameDao.add(Team.WHITE, name, connection))
+        assertThatThrownBy(() -> gamesDao.add(Team.WHITE, name, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
                 .hasMessage("방 이름은 16자 이하로 입력해 주세요.");
     }
@@ -71,9 +71,9 @@ class ChessGameDaoTest {
     @DisplayName("입력된 방 이름이 중복되면 예외가 발생한다.")
     @Test
     void invalidAddIfNameDuplicated() {
-        chessGameDao.add(Team.WHITE, ROOM_NAME, connection);
+        gamesDao.add(Team.WHITE, ROOM_NAME, connection);
 
-        assertThatThrownBy(() -> chessGameDao.add(Team.WHITE, ROOM_NAME, connection))
+        assertThatThrownBy(() -> gamesDao.add(Team.WHITE, ROOM_NAME, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
                 .hasMessage("중복된 이름이 존재합니다.");
     }
@@ -81,9 +81,9 @@ class ChessGameDaoTest {
     @DisplayName("방 이름으로 현재 팀을 찾는다.")
     @Test
     void findCurrentTeamByRoomName() {
-        chessGameDao.add(Team.WHITE, ROOM_NAME, connection);
+        gamesDao.add(Team.WHITE, ROOM_NAME, connection);
 
-        Team currentTeam = chessGameDao.findCurrentTeamByRoomName(ROOM_NAME, connection);
+        Team currentTeam = gamesDao.findCurrentTeamByRoomName(ROOM_NAME, connection);
 
         assertThat(currentTeam).isEqualTo(Team.WHITE);
     }
@@ -93,9 +93,9 @@ class ChessGameDaoTest {
     void findCurrentTeamByInvalidRoomName() {
         String name = "noname";
 
-        chessGameDao.add(Team.WHITE, ROOM_NAME, connection);
+        gamesDao.add(Team.WHITE, ROOM_NAME, connection);
 
-        assertThatThrownBy(() -> chessGameDao.findCurrentTeamByRoomName(name, connection))
+        assertThatThrownBy(() -> gamesDao.findCurrentTeamByRoomName(name, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
                 .hasMessage("존재하지 않는 방 이름입니다.");
     }
@@ -103,9 +103,9 @@ class ChessGameDaoTest {
     @DisplayName("입력된 팀으로 입력된 방이름의 현재 팀을 바꾼다.")
     @Test
     void update() {
-        chessGameDao.add(Team.WHITE, ROOM_NAME, connection);
-        chessGameDao.update(Team.BLACK, ROOM_NAME, connection);
-        Team currentTeam = chessGameDao.findCurrentTeamByRoomName(ROOM_NAME, connection);
+        gamesDao.add(Team.WHITE, ROOM_NAME, connection);
+        gamesDao.update(Team.BLACK, ROOM_NAME, connection);
+        Team currentTeam = gamesDao.findCurrentTeamByRoomName(ROOM_NAME, connection);
 
         assertThat(currentTeam)
                 .isEqualTo(Team.BLACK);
@@ -114,10 +114,10 @@ class ChessGameDaoTest {
     @DisplayName("입력된 방 이름을 삭제한다.")
     @Test
     void delete() {
-        chessGameDao.add(Team.WHITE, ROOM_NAME, connection);
-        chessGameDao.delete(ROOM_NAME, connection);
+        gamesDao.add(Team.WHITE, ROOM_NAME, connection);
+        gamesDao.delete(ROOM_NAME, connection);
 
-        assertThatThrownBy(() -> chessGameDao.findCurrentTeamByRoomName(ROOM_NAME, connection))
+        assertThatThrownBy(() -> gamesDao.findCurrentTeamByRoomName(ROOM_NAME, connection))
                 .isInstanceOf(InvalidGameRoomException.class)
                 .hasMessage("존재하지 않는 방 이름입니다.");
     }

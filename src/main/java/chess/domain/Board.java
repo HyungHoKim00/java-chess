@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Board {
-    private final Map<Position, Piece> pieces;
+    private final Map<Position, Piece> squares;
 
-    public Board(Map<Position, Piece> pieces) {
-        this.pieces = pieces;
+    public Board(Map<Position, Piece> squares) {
+        this.squares = squares;
     }
 
     public void validateSameTeamByPosition(Position position, Team team) {
         validatePieceExistsOnPosition(position);
-        if (!pieces.get(position).isSameTeamWith(team)) {
+        if (!squares.get(position).isSameTeamWith(team)) {
             throw new ImpossibleMoveException("%s이 움직일 차례입니다.".formatted(TeamViewer.show(team)));
         }
     }
@@ -32,27 +32,27 @@ public class Board {
     public Piece move(Movement movement) {
         validatePieceExistsOnPosition(movement.source());
 
-        Piece thisPiece = pieces.get(movement.source());
+        Piece thisPiece = squares.get(movement.source());
         validateMovable(thisPiece, movement);
 
         thisPiece = thisPiece.move();
-        pieces.put(movement.target(), thisPiece);
-        pieces.remove(movement.source());
+        squares.put(movement.target(), thisPiece);
+        squares.remove(movement.source());
         return thisPiece;
     }
 
     private void validatePieceExistsOnPosition(Position position) {
-        if (!pieces.containsKey(position)) {
+        if (!squares.containsKey(position)) {
             throw new ImpossibleMoveException("해당 위치에 기물이 존재하지 않습니다.");
         }
     }
 
     private void validateMovable(Piece thisPiece, Movement movement) {
-        if (!thisPiece.isMovable(movement, pieces.containsKey(movement.target()))) {
+        if (!thisPiece.isMovable(movement, squares.containsKey(movement.target()))) {
             throw new ImpossibleMoveException("해당 위치로 움직일 수 없습니다.");
         }
-        if (pieces.containsKey(movement.target()) && thisPiece.isSameTeamWith(
-                pieces.get(movement.target()))) {
+        if (squares.containsKey(movement.target()) && thisPiece.isSameTeamWith(
+                squares.get(movement.target()))) {
             throw new ImpossibleMoveException("해당 위치에 아군 기물이 존재합니다.");
         }
         if (isBlocked(thisPiece, movement)) {
@@ -63,7 +63,7 @@ public class Board {
     private boolean isBlocked(Piece thisPiece, Movement movement) {
         return thisPiece.findBetweenPositions(movement)
                 .stream()
-                .anyMatch(pieces::containsKey);
+                .anyMatch(squares::containsKey);
     }
 
     public GameResult findResultByScore() {
@@ -125,7 +125,7 @@ public class Board {
     }
 
     private Map<Position, Piece> findSameTeamPieces(Team team) {
-        return pieces.entrySet()
+        return squares.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isSameTeamWith(team))
                 .collect(Collectors.toMap(
@@ -165,27 +165,27 @@ public class Board {
     private Set<Position> attackablePositions(Position position, Piece piece) {
         return position.findAllMovablePosition(piece, true)
                 .stream()
-                .filter(targetPosition -> pieces.containsKey(targetPosition)
-                        && !piece.isSameTeamWith(pieces.get(targetPosition)))
+                .filter(targetPosition -> squares.containsKey(targetPosition)
+                        && !piece.isSameTeamWith(squares.get(targetPosition)))
                 .collect(Collectors.toSet());
     }
 
     private Set<Position> movablePositions(Position position, Piece piece) {
         return position.findAllMovablePosition(piece, false)
                 .stream()
-                .filter(targetPosition -> !pieces.containsKey(targetPosition))
+                .filter(targetPosition -> !squares.containsKey(targetPosition))
                 .collect(Collectors.toSet());
     }
 
     private boolean isCheckedAfterMove(Movement movement, Team team) {
-        Board copiedBoard = new Board(new HashMap<>(this.pieces));
+        Board copiedBoard = new Board(new HashMap<>(this.squares));
         copiedBoard.move(movement);
         return copiedBoard.isChecked(team);
     }
 
     private Position getKingPosition(Team team) {
         Character myKingCharacter = new Character(team, Kind.KING);
-        return pieces.entrySet()
+        return squares.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isSameCharacter(myKingCharacter))
                 .findAny()
@@ -194,7 +194,7 @@ public class Board {
                 .getKey();
     }
 
-    public Map<Position, Piece> getPieces() {
-        return Collections.unmodifiableMap(pieces);
+    public Map<Position, Piece> getSquares() {
+        return Collections.unmodifiableMap(squares);
     }
 }

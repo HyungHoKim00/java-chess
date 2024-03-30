@@ -8,14 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ChessGameDao {
-    private static final String TABLE_NAME = "chess_game";
+public class GamesDao {
 
     public void add(Team currentTeam, String roomName, Connection connection) {
         try {
             validateRoomName(roomName, connection);
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO " + TABLE_NAME + "(room_name, current_team) VALUES (?, ?)");
+                    "INSERT INTO games(room_name, current_team) VALUES (?, ?)");
 
             statement.setString(1, roomName);
             statement.setString(2, currentTeam.name());
@@ -55,7 +54,7 @@ public class ChessGameDao {
     private static ResultSet findCurrentTeamDataByRoomName(String roomName, Connection connection)
             throws SQLException {
         final PreparedStatement statement = connection.prepareStatement(
-                "SELECT current_team FROM " + TABLE_NAME + " WHERE room_name = ?");
+                "SELECT current_team FROM games WHERE room_name = ?");
 
         statement.setString(1, roomName);
         return statement.executeQuery();
@@ -64,7 +63,7 @@ public class ChessGameDao {
     public void update(Team currentTeam, String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE " + TABLE_NAME + " SET current_team = ? WHERE room_name = ?");
+                    "UPDATE games SET current_team = ? WHERE room_name = ?");
 
             statement.setString(1, currentTeam.name());
             statement.setString(2, roomName);
@@ -78,7 +77,7 @@ public class ChessGameDao {
     public void delete(String roomName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM " + TABLE_NAME + " WHERE room_name = ?");
+                    "DELETE FROM games WHERE room_name = ?");
             statement.setString(1, roomName);
 
             statement.execute();
