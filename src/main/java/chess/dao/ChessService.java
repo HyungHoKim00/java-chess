@@ -29,69 +29,95 @@ public class ChessService {
     }
 
     public void initialize(Board board, Team team, String roomName) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+        Connection connection = connectionGenerator.getConnection();
+        try {
             connection.setAutoCommit(false);
-            try {
-                gamesDao.add(team, roomName, connection);
-                boardsDao.addAll(board, roomName, connection);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            }
+            gamesDao.add(team, roomName, connection);
+            boardsDao.addAll(board, roomName, connection);
             connection.commit();
+        } catch (RuntimeException e) {
+            rollback(connection);
+            throw e;
         } catch (SQLException e) {
+            rollback(connection);
             throw new ConnectionException(e.getMessage());
+        } finally {
+            close(connection);
         }
     }
 
     public ChessGame loadChessGame(String roomName) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+        Connection connection = connectionGenerator.getConnection();
+        try {
             connection.setAutoCommit(false);
-            Team currentTeam;
-            Board board;
-            try {
-                currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
-                board = boardsDao.loadAll(roomName, connection);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            }
+            Team currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
+            Board board = boardsDao.loadAll(roomName, connection);
             connection.commit();
             return new ChessGame(board, currentTeam);
+        } catch (RuntimeException e) {
+            rollback(connection);
+            throw e;
         } catch (SQLException e) {
+            rollback(connection);
             throw new ConnectionException(e.getMessage());
+        } finally {
+            close(connection);
         }
     }
 
     public void update(Movement movement, Piece piece, Team currentTeam, String roomName) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+        Connection connection = connectionGenerator.getConnection();
+        try {
             connection.setAutoCommit(false);
-            try {
-                gamesDao.update(currentTeam, roomName, connection);
-                boardsDao.update(movement, piece, roomName, connection);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            }
+            gamesDao.update(currentTeam, roomName, connection);
+            boardsDao.update(movement, piece, roomName, connection);
             connection.commit();
+        } catch (RuntimeException e) {
+            rollback(connection);
+            throw e;
         } catch (SQLException e) {
+            rollback(connection);
             throw new ConnectionException(e.getMessage());
+        } finally {
+            close(connection);
         }
     }
 
     public void deleteChessGame(String roomName) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+        Connection connection = connectionGenerator.getConnection();
+        try {
             connection.setAutoCommit(false);
-            try {
-                gamesDao.delete(roomName, connection);
-                boardsDao.delete(roomName, connection);
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            }
+            gamesDao.delete(roomName, connection);
+            boardsDao.delete(roomName, connection);
             connection.commit();
+        } catch (RuntimeException e) {
+            rollback(connection);
+            throw e;
         } catch (SQLException e) {
+            rollback(connection);
             throw new ConnectionException(e.getMessage());
+        } finally {
+            close(connection);
+        }
+    }
+
+    private void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                throw new ConnectionException(e.getMessage());
+            }
+        }
+    }
+
+    private void close(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new ConnectionException(e.getMessage());
+            }
         }
     }
 }
