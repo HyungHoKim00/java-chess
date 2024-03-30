@@ -80,7 +80,8 @@ public class ChessController {
         Board board = chessGame.getBoard();
         while ((commandDto = InputView.inputCommand()).gameCommand() == GameCommand.MOVE) {
             playTurn(chessGame, commandDto.toMovementDomain(), roomName);
-            if ((state = chessGame.checkState()) == State.CHECKMATE) {
+            state = chessGame.checkState();
+            if (state == State.CHECKMATE || state == State.STALEMATE) {
                 break;
             }
         }
@@ -89,11 +90,7 @@ public class ChessController {
         chessService.deleteChessGame(roomName);
     }
 
-    private void playTurn(
-            ChessGame chessGame,
-            Movement movement,
-            String roomName
-    ) {
+    private void playTurn(ChessGame chessGame, Movement movement, String roomName) {
         Board board = chessGame.getBoard();
         Piece piece = chessGame.movePiece(movement);
         chessService.update(movement, piece, chessGame.getCurrentTeam(), roomName);
