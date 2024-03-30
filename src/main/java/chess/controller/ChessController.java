@@ -19,12 +19,17 @@ import chess.view.InputView;
 import chess.view.OutputView;
 
 public class ChessController {
+    private final ChessService chessService;
+
+    public ChessController(ChessService chessService) {
+        this.chessService = chessService;
+    }
+
     public void run() {
-        ChessService chessService = new ChessService();
         try {
             switch (validateStartCommand()) {
-                case START -> startNewGame(chessService);
-                case LOAD -> loadGame(chessService);
+                case START -> startNewGame();
+                case LOAD -> loadGame();
             }
         } catch (InvalidGameRoomException e) {
             OutputView.printErrorMessage(e.getMessage());
@@ -32,23 +37,23 @@ public class ChessController {
         }
     }
 
-    private void startNewGame(ChessService chessService) {
+    private void startNewGame() {
         String roomName = InputView.inputNewRoomName();
         Board board = new Board(BoardFactory.generateStartBoard());
         ChessGame chessGame = new ChessGame(board);
         chessService.initialize(board, chessGame.getCurrentTeam(), roomName);
         OutputView.printGameState(new BoardStatusDto(board.getPieces(), State.NORMAL));
 
-        play(chessGame, chessService, roomName);
+        play(chessGame, roomName);
     }
 
-    private void loadGame(ChessService chessService) {
+    private void loadGame() {
         String roomName = InputView.inputLoadRoomName();
         ChessGame chessGame = chessService.loadChessGame(roomName);
         Board board = chessGame.getBoard();
         OutputView.printGameState(new BoardStatusDto(board.getPieces(), chessGame.checkState()));
 
-        play(chessGame, chessService, roomName);
+        play(chessGame, roomName);
     }
 
     private GameCommand validateStartCommand() {
@@ -60,23 +65,24 @@ public class ChessController {
         }
     }
 
-    private void play(ChessGame chessGame, ChessService chessService, String roomName) {
+    private void play(ChessGame chessGame, String roomName) {
         try {
-            playTurns(chessGame, chessService, roomName);
+            playTurns(chessGame, roomName);
         } catch (InvalidCommandException | ImpossibleMoveException e) {
             OutputView.printErrorMessage(e.getMessage());
-            play(chessGame, chessService, roomName);
+            play(chessGame, roomName);
         }
     }
 
-    private void playTurns(ChessGame chessGame, ChessService chessService, String roomName) {
-        CommandDto commandDto = new CommandDto();
+    private void playTurns(ChessGame chessGame, String roomName) {
+        CommandDto commandDto;
         State state = chessGame.checkState();
         Board board = chessGame.getBoard();
-        while (state != State.CHECKMATE
-                && (commandDto = InputView.inputCommand()).gameCommand() == GameCommand.MOVE) {
-            playTurn(chessGame, chessService, commandDto.toMovementDomain(), roomName);
-            state = chessGame.checkState();
+        while ((commandDto = InputView.inputCommand()).gameCommand() == GameCommand.MOVE) {
+            playTurn(chessGame, commandDto.toMovementDomain(), roomName);
+            if ((state = chessGame.checkState()) == State.CHECKMATE) {
+                break;
+            }
         }
         printWinnerByStatus(board, commandDto.gameCommand());
         printWinnerByMate(chessGame, state);
@@ -85,7 +91,6 @@ public class ChessController {
 
     private void playTurn(
             ChessGame chessGame,
-            ChessService chessService,
             Movement movement,
             String roomName
     ) {
