@@ -6,8 +6,6 @@ import chess.domain.Movement;
 import chess.domain.piece.abstractPiece.Piece;
 import chess.domain.piece.character.Team;
 import chess.exception.ConnectionException;
-import chess.exception.DataAccessException;
-import chess.exception.InvalidGameRoomException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -36,7 +34,7 @@ public class ChessService {
             try {
                 gamesDao.add(team, roomName, connection);
                 boardsDao.addAll(board, roomName, connection);
-            } catch (InvalidGameRoomException | DataAccessException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             }
@@ -54,7 +52,7 @@ public class ChessService {
             try {
                 currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
                 board = boardsDao.loadAll(roomName, connection);
-            } catch (InvalidGameRoomException | DataAccessException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             }
@@ -71,7 +69,7 @@ public class ChessService {
             try {
                 gamesDao.update(currentTeam, roomName, connection);
                 boardsDao.update(movement, piece, roomName, connection);
-            } catch (DataAccessException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             }
@@ -87,7 +85,7 @@ public class ChessService {
             try {
                 gamesDao.delete(roomName, connection);
                 boardsDao.delete(roomName, connection);
-            } catch (DataAccessException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             }
