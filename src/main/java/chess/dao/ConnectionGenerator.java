@@ -17,8 +17,7 @@ public class ConnectionGenerator {
     public Connection getConnection(String connectionType) {
         try {
             FileInputStream fis = new FileInputStream(
-                    "C:\\Program Files\\intellijWorkspace\\intellijWorkspace\\java-chess\\src"
-                            + "\\main\\resources\\" + connectionType + "_connection_context.yml");
+                    "src/main/resources/" + connectionType + ".yml");
             Properties properties = new Properties();
             properties.load(fis);
             return DriverManager.getConnection(
