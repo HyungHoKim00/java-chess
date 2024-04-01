@@ -1,5 +1,6 @@
-server: localhost:13306
-database: chess_test
-option: ?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-username: root
-password: root
+db:
+  server: localhost:13306
+  database: chess_test
+  option: ?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  username: root
+  password: root
