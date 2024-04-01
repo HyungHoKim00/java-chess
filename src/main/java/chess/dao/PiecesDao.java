@@ -20,8 +20,26 @@ public class PiecesDao {
             statement.setBoolean(3, piece.isMoved());
             final ResultSet resultSet = statement.executeQuery();
 
-            resultSet.next();
+            if (!resultSet.next()) {
+                createPiece(piece, connection);
+            }
             return resultSet.getByte("id");
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    private void createPiece(Piece piece, Connection connection) {
+        try {
+            final PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO pieces (team, kind, is_moved) 
+                    WHERE team = ? AND kind = ? AND is_moved = ?
+                    """);
+
+            statement.setString(1, piece.team().name());
+            statement.setString(2, piece.kind().name());
+            statement.setBoolean(3, piece.isMoved());
+            statement.execute();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -35,7 +53,6 @@ public class PiecesDao {
             statement.setByte(1, id);
             final ResultSet resultSet = statement.executeQuery();
 
-            resultSet.next();
             Team team = Team.valueOf(resultSet.getString("team"));
             Kind kind = Kind.valueOf(resultSet.getString("kind"));
             boolean isMoved = resultSet.getBoolean("is_moved");
