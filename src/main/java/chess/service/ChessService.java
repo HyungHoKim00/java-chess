@@ -1,7 +1,10 @@
-package chess.dao;
+package chess.service;
 
+import chess.dao.BoardsDao;
+import chess.dao.ConnectionGenerator;
+import chess.dao.GamesDao;
 import chess.domain.Board;
-import chess.domain.ChessGame;
+import chess.domain.Game;
 import chess.domain.Movement;
 import chess.domain.piece.abstractPiece.Piece;
 import chess.domain.piece.character.Team;
@@ -46,14 +49,14 @@ public class ChessService {
         }
     }
 
-    public ChessGame loadChessGame(String roomName) {
+    public Game loadChessGame(String roomName) {
         Connection connection = connectionGenerator.getConnection();
         try {
             connection.setAutoCommit(false);
             Team currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
             Board board = boardsDao.loadAll(roomName, connection);
             connection.commit();
-            return new ChessGame(board, currentTeam);
+            return new Game(board, currentTeam);
         } catch (RuntimeException e) {
             rollback(connection);
             throw e;

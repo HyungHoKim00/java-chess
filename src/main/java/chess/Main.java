@@ -1,7 +1,7 @@
 package chess;
 
 import chess.controller.ChessController;
-import chess.dao.ChessService;
+import chess.service.ChessService;
 
 public class Main {
     public static void main(String[] args) {
