@@ -6,14 +6,20 @@ import chess.exception.ImpossibleMoveException;
 
 public class Game {
     private final Board board;
+    private final String roomName;
     private Team currentTeam;
 
-    public Game(Board board) {
-        this(board, Team.WHITE);
+    public Game(Board board, String roomName) {
+        this(board, roomName, Team.WHITE);
     }
 
     public Game(Board board, Team team) {
+        this(board, "new game", team);
+    }
+
+    public Game(Board board, String roomName, Team team) {
         this.board = board;
+        this.roomName = roomName;
         this.currentTeam = team;
     }
 
@@ -40,11 +46,15 @@ public class Game {
         return board.checkState(currentTeam);
     }
 
-    public Team getCurrentTeam() {
-        return currentTeam;
-    }
-
     public Board getBoard() {
         return board;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public Team getCurrentTeam() {
+        return currentTeam;
     }
 }

@@ -53,6 +53,7 @@ public class PiecesDao {
             statement.setByte(1, id);
             final ResultSet resultSet = statement.executeQuery();
 
+            resultSet.next();
             Team team = Team.valueOf(resultSet.getString("team"));
             Kind kind = Kind.valueOf(resultSet.getString("kind"));
             boolean isMoved = resultSet.getBoolean("is_moved");

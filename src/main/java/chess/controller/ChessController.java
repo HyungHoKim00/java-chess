@@ -40,11 +40,11 @@ public class ChessController {
     private void startNewGame() {
         String roomName = InputView.inputNewRoomName();
         Board board = new Board(BoardFactory.generateStartBoard());
-        Game game = new Game(board);
+        Game game = new Game(board, roomName);
         chessService.initialize(board, game.getCurrentTeam(), roomName);
         OutputView.printGameState(new BoardStatusDto(board.getSquares(), State.NORMAL));
 
-        play(game, roomName);
+        play(game);
     }
 
     private void loadGame() {
@@ -53,7 +53,7 @@ public class ChessController {
         Board board = game.getBoard();
         OutputView.printGameState(new BoardStatusDto(board.getSquares(), game.checkState()));
 
-        play(game, roomName);
+        play(game);
     }
 
     private GameCommand validateStartCommand() {
@@ -65,40 +65,40 @@ public class ChessController {
         }
     }
 
-    private void play(Game game, String roomName) {
+    private void play(Game game) {
         try {
-            playTurns(game, roomName);
+            playTurns(game);
         } catch (InvalidCommandException | ImpossibleMoveException e) {
             OutputView.printErrorMessage(e.getMessage());
-            play(game, roomName);
+            play(game);
         }
     }
 
-    private void playTurns(Game game, String roomName) {
+    private void playTurns(Game game) {
         CommandDto commandDto;
         while ((commandDto = InputView.inputCommand()).gameCommand() != GameCommand.END) {
-            doByCommand(game, roomName, commandDto);
+            doByCommand(game, commandDto);
             if (game.isMated()) {
                 printWinnerByMate(game);
-                chessService.deleteChessGame(roomName);
+                chessService.deleteChessGame(game.getRoomName());
                 break;
             }
         }
     }
 
-    private void doByCommand(Game game, String roomName, CommandDto commandDto) {
+    private void doByCommand(Game game, CommandDto commandDto) {
         if (commandDto.gameCommand() == GameCommand.MOVE) {
-            playTurn(game, commandDto.toMovementDomain(), roomName);
+            playTurn(game, commandDto.toMovementDomain());
         }
         if (commandDto.gameCommand() == GameCommand.STATUS) {
             printWinnerByStatus(game.getBoard());
         }
     }
 
-    private void playTurn(Game game, Movement movement, String roomName) {
+    private void playTurn(Game game, Movement movement) {
         Board board = game.getBoard();
         Piece piece = game.movePiece(movement);
-        chessService.update(movement, piece, game.getCurrentTeam(), roomName);
+        chessService.update(movement, piece, game.getCurrentTeam(), game.getRoomName());
         OutputView.printGameState(new BoardStatusDto(board.getSquares(), game.checkState()));
     }
 
