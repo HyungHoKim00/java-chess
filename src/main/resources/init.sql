@@ -51,4 +51,4 @@ VALUES ("WHITE", "PAWN", true),
        ("BLACK", "QUEEN", true),
        ("BLACK", "QUEEN", false),
        ("BLACK", "KING", true),
-       ("BLACK", "KING", false)
+       ("BLACK", "KING", false);

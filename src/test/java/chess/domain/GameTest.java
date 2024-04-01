@@ -15,16 +15,16 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class ChessGameTest {
+class GameTest {
     @DisplayName("입력대로 보드를 움직인다.")
     @Test
     void movePiece() {
         Board board = new Board(BoardFactory.generateStartBoard());
         Team team = Team.WHITE;
-        ChessGame chessGame = new ChessGame(board, team);
+        Game game = new Game(board, team);
 
-        chessGame.movePiece(new Movement(Position.of(2, 2), Position.of(4, 2)));
-        Team actualCurrentTeam = chessGame.getCurrentTeam();
+        game.movePiece(new Movement(Position.of(2, 2), Position.of(4, 2)));
+        Team actualCurrentTeam = game.getCurrentTeam();
 
         assertAll(
                 () -> assertThat(board.getSquares()).containsEntry(Position.of(4, 2),
@@ -38,10 +38,10 @@ class ChessGameTest {
     void movePieceTurnException() {
         Board board = new Board(BoardFactory.generateStartBoard());
         Team team = Team.WHITE;
-        ChessGame chessGame = new ChessGame(board, team);
+        Game game = new Game(board, team);
 
         assertThatThrownBy(() ->
-                chessGame.movePiece(new Movement(Position.of(7, 2), Position.of(5, 2))))
+                game.movePiece(new Movement(Position.of(7, 2), Position.of(5, 2))))
                 .isInstanceOf(ImpossibleMoveException.class)
                 .hasMessage("백팀이 움직일 차례입니다.");
     }
@@ -55,10 +55,10 @@ class ChessGameTest {
         boardMap.put(Position.of(2, 2), new Queen(Team.BLACK));
         Board board = new Board(boardMap);
         Team team = Team.WHITE;
-        ChessGame chessGame = new ChessGame(board, team);
+        Game game = new Game(board, team);
 
         assertThatThrownBy(() ->
-                chessGame.movePiece(new Movement(Position.of(1, 1), Position.of(1, 2))))
+                game.movePiece(new Movement(Position.of(1, 1), Position.of(1, 2))))
                 .isInstanceOf(ImpossibleMoveException.class)
                 .hasMessage("체크 상태를 벗어나지 않았습니다.");
     }

@@ -4,15 +4,15 @@ import chess.domain.piece.abstractPiece.Piece;
 import chess.domain.piece.character.Team;
 import chess.exception.ImpossibleMoveException;
 
-public class ChessGame {
+public class Game {
     private final Board board;
     private Team currentTeam;
 
-    public ChessGame(Board board) {
+    public Game(Board board) {
         this(board, Team.WHITE);
     }
 
-    public ChessGame(Board board, Team team) {
+    public Game(Board board, Team team) {
         this.board = board;
         this.currentTeam = team;
     }
