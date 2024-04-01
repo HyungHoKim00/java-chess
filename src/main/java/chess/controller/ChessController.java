@@ -76,18 +76,23 @@ public class ChessController {
 
     private void playTurns(Game game, String roomName) {
         CommandDto commandDto;
-        State state = game.checkState();
-        Board board = game.getBoard();
-        while ((commandDto = InputView.inputCommand()).gameCommand() == GameCommand.MOVE) {
-            playTurn(game, commandDto.toMovementDomain(), roomName);
-            state = game.checkState();
-            if (state == State.CHECKMATE || state == State.STALEMATE) {
+        while ((commandDto = InputView.inputCommand()).gameCommand() != GameCommand.END) {
+            doByCommand(game, roomName, commandDto);
+            if (game.isMated()) {
+                printWinnerByMate(game);
+                chessService.deleteChessGame(roomName);
                 break;
             }
         }
-        printWinnerByStatus(board, commandDto.gameCommand());
-        printWinnerByMate(game, state);
-        chessService.deleteChessGame(roomName);
+    }
+
+    private void doByCommand(Game game, String roomName, CommandDto commandDto) {
+        if (commandDto.gameCommand() == GameCommand.MOVE) {
+            playTurn(game, commandDto.toMovementDomain(), roomName);
+        }
+        if (commandDto.gameCommand() == GameCommand.STATUS) {
+            printWinnerByStatus(game.getBoard());
+        }
     }
 
     private void playTurn(Game game, Movement movement, String roomName) {
@@ -97,15 +102,14 @@ public class ChessController {
         OutputView.printGameState(new BoardStatusDto(board.getSquares(), game.checkState()));
     }
 
-    private void printWinnerByStatus(Board board, GameCommand gameCommand) {
-        if (gameCommand == GameCommand.STATUS) {
-            OutputView.printPoint(Team.WHITE, board.calculateScore(Team.WHITE));
-            OutputView.printPoint(Team.BLACK, board.calculateScore(Team.BLACK));
-            OutputView.printWinner(board.findResultByScore());
-        }
+    private void printWinnerByStatus(Board board) {
+        OutputView.printPoint(Team.WHITE, board.calculateScore(Team.WHITE));
+        OutputView.printPoint(Team.BLACK, board.calculateScore(Team.BLACK));
+        OutputView.printWinner(board.findResultByScore());
     }
 
-    private void printWinnerByMate(Game game, State state) {
+    private void printWinnerByMate(Game game) {
+        State state = game.checkState();
         if (state == State.CHECKMATE) {
             OutputView.printWinner(game.getCurrentTeam().opponent());
         }

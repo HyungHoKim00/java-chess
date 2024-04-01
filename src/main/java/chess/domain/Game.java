@@ -31,6 +31,11 @@ public class Game {
         }
     }
 
+    public boolean isMated() {
+        State state = board.checkState(currentTeam);
+        return state == State.CHECKMATE || state == State.STALEMATE;
+    }
+
     public State checkState() {
         return board.checkState(currentTeam);
     }
