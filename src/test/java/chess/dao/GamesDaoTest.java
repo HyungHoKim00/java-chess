@@ -8,9 +8,7 @@ import chess.domain.piece.character.Team;
 import chess.exception.InvalidGameRoomException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,35 +16,24 @@ import org.junit.jupiter.api.Test;
 class GamesDaoTest {
     private static final String ROOM_NAME = "roomName";
     private GamesDao gamesDao;
-    private static Connection connection;
+    private Connection connection;
 
-    @BeforeAll
-    static void openConnection() {
+    @BeforeEach
+    void setUp() {
         try {
             ConnectionGenerator connectionGenerator = new ConnectionGenerator();
             connection = connectionGenerator.getConnection("test");
             connection.setAutoCommit(false);
+            gamesDao = new GamesDao();
         } catch (SQLException ignored) {
         }
-    }
-
-    @AfterAll
-    static void closeConnection() {
-        try {
-            connection.close();
-        } catch (SQLException ignored) {
-        }
-    }
-
-    @BeforeEach
-    void setUp() {
-        gamesDao = new GamesDao();
     }
 
     @AfterEach
     void tearDown() {
         try {
             connection.rollback();
+            connection.close();
         } catch (SQLException ignored) {
         }
     }
