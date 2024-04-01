@@ -56,7 +56,7 @@ public class ChessService {
             Team currentTeam = gamesDao.findCurrentTeamByRoomName(roomName, connection);
             Board board = boardsDao.loadAll(roomName, connection);
             connection.commit();
-            return new Game(board, currentTeam);
+            return new Game(board, roomName, currentTeam);
         } catch (RuntimeException e) {
             rollback(connection);
             throw e;
